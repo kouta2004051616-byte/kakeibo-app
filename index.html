@@ -10,7 +10,10 @@
   box-sizing: border-box;
 }
 
-body { font-family: sans-serif; padding: 15px; }
+body {
+  font-family: sans-serif;
+  padding: 15px;
+}
 
 button {
   width: 100%;
@@ -22,8 +25,15 @@ button {
   background: #eee;
 }
 
-button.active { background: #4CAF50; color: white; }
-button.danger { background: #e53935; color: white; }
+button.active {
+  background: #4CAF50;
+  color: white;
+}
+
+button.danger {
+  background: #e53935;
+  color: white;
+}
 
 input, select {
   width: 100%;
@@ -43,6 +53,7 @@ input, select {
   font-weight: bold;
   margin: 10px 0;
 }
+
 </style>
 </head>
 
@@ -56,23 +67,33 @@ input, select {
 </div>
 
 <div id="add" style="display:none;">
+
   <h3>追加</h3>
 
   <p>支払い方法</p>
+
   <button id="btnCash" onclick="setPayment('現金')">現金</button>
   <button id="btnCard" onclick="setPayment('カード')">カード</button>
   <button id="btnPaypay" onclick="setPayment('PayPay')">PayPay</button>
+  <button id="btnSuica" onclick="setPayment('Suica')">Suica</button>
 
   <p id="selectedPayment">選択：現金</p>
 
   <input id="name" placeholder="商品名">
-  <input id="price" type="number" placeholder="金額（カード・PayPayは空OK）">
+
+  <input
+    id="price"
+    type="number"
+    placeholder="金額（カード・PayPay・Suicaは空OK）"
+  >
 
   <button onclick="save()">保存</button>
   <button onclick="back()">戻る</button>
+
 </div>
 
 <div id="history" style="display:none;">
+
   <h3>履歴</h3>
 
   <button onclick="quickAdd()">後から追加</button>
@@ -95,6 +116,7 @@ input, select {
   <div id="list"></div>
 
   <button onclick="back()">戻る</button>
+
 </div>
 
 <script>
@@ -104,6 +126,7 @@ const add = document.getElementById("add");
 const history = document.getElementById("history");
 
 let payment = "現金";
+
 setActiveButton("現金");
 
 function showAdd() {
@@ -124,22 +147,41 @@ function back() {
 }
 
 function setPayment(type) {
+
   payment = type;
-  document.getElementById("selectedPayment").innerText = "選択：" + type;
+
+  document.getElementById("selectedPayment").innerText =
+    "選択：" + type;
+
   setActiveButton(type);
 }
 
 function setActiveButton(type) {
+
   document.getElementById("btnCash").classList.remove("active");
   document.getElementById("btnCard").classList.remove("active");
   document.getElementById("btnPaypay").classList.remove("active");
+  document.getElementById("btnSuica").classList.remove("active");
 
-  if (type === "現金") document.getElementById("btnCash").classList.add("active");
-  if (type === "カード") document.getElementById("btnCard").classList.add("active");
-  if (type === "PayPay") document.getElementById("btnPaypay").classList.add("active");
+  if (type === "現金") {
+    document.getElementById("btnCash").classList.add("active");
+  }
+
+  if (type === "カード") {
+    document.getElementById("btnCard").classList.add("active");
+  }
+
+  if (type === "PayPay") {
+    document.getElementById("btnPaypay").classList.add("active");
+  }
+
+  if (type === "Suica") {
+    document.getElementById("btnSuica").classList.add("active");
+  }
 }
 
 function save() {
+
   const name = document.getElementById("name").value;
   const price = document.getElementById("price").value;
 
@@ -165,8 +207,13 @@ function save() {
   };
 
   let list = JSON.parse(localStorage.getItem("kakeibo") || "[]");
+
   list.push(data);
-  localStorage.setItem("kakeibo", JSON.stringify(list));
+
+  localStorage.setItem(
+    "kakeibo",
+    JSON.stringify(list)
+  );
 
   alert("保存しました");
 
@@ -177,7 +224,9 @@ function save() {
 }
 
 function quickAdd() {
+
   const name = prompt("商品名を入力してください");
+
   if (!name) return;
 
   const data = {
@@ -190,29 +239,48 @@ function quickAdd() {
   };
 
   let list = JSON.parse(localStorage.getItem("kakeibo") || "[]");
+
   list.push(data);
-  localStorage.setItem("kakeibo", JSON.stringify(list));
+
+  localStorage.setItem(
+    "kakeibo",
+    JSON.stringify(list)
+  );
 
   load();
 }
 
-// ★ 一件削除
 function deleteItem(index) {
-  if (!confirm("このデータを削除しますか？")) return;
+
+  if (!confirm("このデータを削除しますか？")) {
+    return;
+  }
 
   let list = JSON.parse(localStorage.getItem("kakeibo") || "[]");
+
   list.splice(index, 1);
-  localStorage.setItem("kakeibo", JSON.stringify(list));
+
+  localStorage.setItem(
+    "kakeibo",
+    JSON.stringify(list)
+  );
+
   load();
 }
 
 function load() {
+
   const list = JSON.parse(localStorage.getItem("kakeibo") || "[]");
+
   const div = document.getElementById("list");
+
   const totalDiv = document.getElementById("total");
 
-  const filterCategory = document.getElementById("filterCategory").value;
-  const filterMonth = document.getElementById("filterMonth").value;
+  const filterCategory =
+    document.getElementById("filterCategory").value;
+
+  const filterMonth =
+    document.getElementById("filterMonth").value;
 
   div.innerHTML = "";
 
@@ -223,57 +291,147 @@ function load() {
     let dateText = "???";
     let month = "";
 
-    if (!item.manual && item.date) {
-      const date = new Date(item.date);
+    if (item.customDate) {
+
+      const date = new Date(item.customDate);
+
       dateText = date.toLocaleString();
-      month = date.toISOString().slice(0,7);
+
+      month = item.customDate.slice(0, 7);
+
+    } else if (!item.manual && item.date) {
+
+      const date = new Date(item.date);
+
+      dateText = date.toLocaleString();
+
+      month = date.toISOString().slice(0, 7);
     }
 
-    if (filterCategory && item.category !== filterCategory) return;
-    if (filterMonth && month !== filterMonth) return;
+    if (filterCategory &&
+        item.category !== filterCategory) {
+      return;
+    }
 
-    if (item.price) total += Number(item.price);
+    if (filterMonth &&
+        month !== filterMonth) {
+      return;
+    }
+
+    if (item.price) {
+      total += Number(item.price);
+    }
 
     div.innerHTML += `
       <div class="card">
-        ${dateText}<br>
-        ${item.name}<br>
+
+        日時：
+        <input
+          type="datetime-local"
+          value="${item.customDate || ''}"
+          onchange="updateDate(${index}, this.value)"
+        >
+
+        表示：
+        ${dateText}<br><br>
+
+        ${item.name}<br><br>
 
         金額：
-        <input type="number" value="${item.price}"
-          onchange="updatePrice(${index}, this.value)">
+        <input
+          type="number"
+          value="${item.price}"
+          onchange="updatePrice(${index}, this.value)"
+        >
 
-        支払い：${item.payment}<br>
+        支払い：
+        ${item.payment}<br><br>
 
         分類：
-        <select onchange="updateCategory(${index}, this.value)">
-          <option ${item.category==="未分類"?"selected":""}>未分類</option>
-          <option ${item.category==="飲食"?"selected":""}>飲食</option>
-          <option ${item.category==="娯楽"?"selected":""}>娯楽</option>
-          <option ${item.category==="交通"?"selected":""}>交通</option>
-          <option ${item.category==="投資"?"selected":""}>投資</option>
-          <option ${item.category==="学業"?"selected":""}>学業</option>
-          <option ${item.category==="推し活"?"selected":""}>推し活</option>
+        <select
+          onchange="updateCategory(${index}, this.value)"
+        >
+          <option ${item.category==="未分類"?"selected":""}>
+            未分類
+          </option>
+
+          <option ${item.category==="飲食"?"selected":""}>
+            飲食
+          </option>
+
+          <option ${item.category==="娯楽"?"selected":""}>
+            娯楽
+          </option>
+
+          <option ${item.category==="交通"?"selected":""}>
+            交通
+          </option>
+
+          <option ${item.category==="投資"?"selected":""}>
+            投資
+          </option>
+
+          <option ${item.category==="学業"?"selected":""}>
+            学業
+          </option>
+
+          <option ${item.category==="推し活"?"selected":""}>
+            推し活
+          </option>
+
         </select>
 
-        <button class="danger" onclick="deleteItem(${index})">削除</button>
+        <button
+          class="danger"
+          onclick="deleteItem(${index})"
+        >
+          削除
+        </button>
+
       </div>
     `;
   });
 
-  totalDiv.innerText = "合計：" + total + "円";
+  totalDiv.innerText =
+    "合計：" + total + "円";
 }
 
 function updatePrice(index, value) {
+
   let list = JSON.parse(localStorage.getItem("kakeibo") || "[]");
+
   list[index].price = value;
-  localStorage.setItem("kakeibo", JSON.stringify(list));
+
+  localStorage.setItem(
+    "kakeibo",
+    JSON.stringify(list)
+  );
 }
 
 function updateCategory(index, value) {
+
   let list = JSON.parse(localStorage.getItem("kakeibo") || "[]");
+
   list[index].category = value;
-  localStorage.setItem("kakeibo", JSON.stringify(list));
+
+  localStorage.setItem(
+    "kakeibo",
+    JSON.stringify(list)
+  );
+}
+
+function updateDate(index, value) {
+
+  let list = JSON.parse(localStorage.getItem("kakeibo") || "[]");
+
+  list[index].customDate = value;
+
+  localStorage.setItem(
+    "kakeibo",
+    JSON.stringify(list)
+  );
+
+  load();
 }
 
 </script>
